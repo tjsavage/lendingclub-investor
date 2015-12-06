@@ -1,0 +1,9 @@
+{
+  "lendingClub": {
+    "key": "ABCDEFG",
+    "investorId": 11111
+  },
+  "sqlite3": {
+    "filename": "data/db"
+  }
+}

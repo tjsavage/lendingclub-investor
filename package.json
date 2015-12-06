@@ -1,0 +1,27 @@
+{
+  "name": "lendingclub-investor",
+  "version": "1.0.0",
+  "description": "Autoinvests for lendingclub",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/tjsavage/lendingclub-investor"
+  },
+  "keywords": [
+    "lendingclub"
+  ],
+  "author": "tjsavage",
+  "license": "MIT",
+  "dependencies": {
+    "chai": "^3.4.1",
+    "chai-as-promised": "^5.1.0",
+    "express": "^4.13.3",
+    "mocha": "^2.3.4",
+    "nock": "^3.3.2",
+    "node-lendingclub-manager": "0.0.1",
+    "sqlite3": "^3.1.1"
+  }
+}
