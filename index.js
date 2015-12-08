@@ -4,8 +4,7 @@ var config = require('config');
 var app = express();
 
 app.get('/', function (req, res) {
-  res.send('Hello World');
-  res.send('investorId: ' + config.get('lendingClub.investorId'));
+  res.send('Hello World, investorId: ' + config.get('lendingClub.investorId'));
 });
 
 app.get('/invest', function(req, res) {
