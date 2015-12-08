@@ -18,6 +18,7 @@
   "dependencies": {
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
+    "config": "^1.17.1",
     "express": "^4.13.3",
     "mocha": "^2.3.4",
     "nock": "^3.3.2",

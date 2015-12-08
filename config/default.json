@@ -1,0 +1,9 @@
+{
+  "lendingClub": {
+    "key": "",
+    "investorId": 0
+  },
+  "sqlite3": {
+    "databasePath": "data/db"
+  }
+}

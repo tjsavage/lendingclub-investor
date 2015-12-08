@@ -6,7 +6,7 @@ var config = require('../../config.json');
 var LoadAllListedLoans = require('../etl/load-all-listed-loans');
 
 var manager = new LendingclubManager(config.lendingClub);
-var db = new sqlite3.Database(config.sqlite3.filename);
+var db = new sqlite3.Database(config.sqlite3.databasePath);
 
 LoadAllListedLoans.toSQLite3(manager, db).then(function() {
   console.log("DONE!");

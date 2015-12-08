@@ -1,10 +1,11 @@
 var express = require('express');
-var app = express();
+var config = require('config');
 
-var config = require('./config.json');
+var app = express();
 
 app.get('/', function (req, res) {
   res.send('Hello World!');
+  res.send(config.get('sqlite3'));
 });
 
 app.get('/invest', function(req, res) {
@@ -16,4 +17,5 @@ var server = app.listen(process.env.PORT || 3000, function () {
   var port = server.address().port;
 
   console.log('App listening at http://%s:%s', host, port);
+  console.log('Config: ', config.get('lendingClub'))
 });
