@@ -3,13 +3,11 @@ var config = require('config');
 
 var app = express();
 
+var cron = require('./cron');
+
 app.get('/', function (req, res) {
   res.send('Hello World, investorId: ' + config.get('lendingClub.investorId'));
 });
-
-app.get('/invest', function(req, res) {
-
-})
 
 var server = app.listen(process.env.PORT || 3000, function () {
   var host = server.address().address;
