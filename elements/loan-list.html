@@ -1,0 +1,36 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<link rel="import" href="/bower_components/iron-selector/iron-selector.html">
+
+<link rel="import" href="/elements/loan-list-item.html">
+
+<dom-module id="loan-list">
+  <template>
+    <style>
+      loan-list-item.iron-selected {
+        background-color: #888;
+      }
+    </style>
+
+    <iron-selector multi selected-class="selected">
+      <template is='dom-repeat' items="[[loans]]">
+        <loan-list-item loan="[[item]]">
+        </loan-list-item>
+      </template>
+    </iron-selector>
+  </template>
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'loan-list',
+    properties: {
+      loans: {
+        type: Object
+      },
+      selectedLoans: {
+
+      }
+    }
+  });
+</script>

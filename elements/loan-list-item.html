@@ -1,0 +1,23 @@
+<dom-module id="loan-list-item">
+  <template>
+    <style>
+      :host.selected {
+        color: #f00;
+        background-color: #888;
+      }
+    </style>
+
+    <p>[[ loan.id ]]</p>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'loan-list-item',
+  properties: {
+    loan: {
+      type: 'Object'
+    }
+  }
+});
+</script>

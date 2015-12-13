@@ -3,3 +3,4 @@ local
 config.json
 *.log
 private-config
+bower_components

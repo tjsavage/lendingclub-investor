@@ -8,8 +8,11 @@ var cron = require('./cron');
 var LendingclubManager = require('node-lendingclub-manager')
 var manager = new LendingclubManager(config.get('lendingClub'));
 
-app.get('/', function (req, res) {
+app.use('/bower_components', express.static('bower_components'));
+app.use('/elements', express.static('elements'));
 
+app.get('/', function (req, res) {
+  res.sendFile(__dirname + '/index.html');
 });
 
 app.get('/api/loans', function(req, res) {
