@@ -9,7 +9,6 @@ LRNB.filterAll = function filterAll(loans) {
         filteredLoans.push(loan);
       }
     });
-
     return filteredLoans;
   })
 }
@@ -26,3 +25,5 @@ LRNB.filter = function filter(loan) {
     && loan.annualInc > 30000
     && loan.intRate > 12;
 }
+
+module.exports = LRNB;

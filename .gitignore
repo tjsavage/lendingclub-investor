@@ -2,3 +2,4 @@ node_modules
 local
 config.json
 *.log
+private-config
