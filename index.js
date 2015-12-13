@@ -26,9 +26,7 @@ app.get('/api/loans', function(req, res) {
   }).then(function(loans) {
     res.json(loans);
   });
-})
-
-app.get('/api/loans/')
+});
 
 var server = app.listen(process.env.PORT || 3000, function () {
   var host = server.address().address;
