@@ -1,5 +1,6 @@
 var express = require('express');
 var config = require('config');
+var fork = require('child_process').fork;
 
 var app = express();
 
@@ -7,6 +8,13 @@ var cron = require('./cron');
 
 var LendingclubManager = require('node-lendingclub-manager')
 var manager = new LendingclubManager(config.get('lendingClub'));
+
+if (process.env.NODE_ENV == 'development') {
+   var lendingclubServer = fork('./test/lendingclub-server.js');
+   lendingclubServer.on('message', function(data) {
+     console.log('lendingclubServer: ' + data);
+   });
+}
 
 app.use('/bower_components', express.static('bower_components'));
 app.use('/elements', express.static('elements'));
@@ -33,5 +41,4 @@ var server = app.listen(process.env.PORT || 3000, function () {
   var port = server.address().port;
 
   console.log('App listening at http://%s:%s', host, port);
-  console.log('Config: ', config.get('sqlite3'))
 });

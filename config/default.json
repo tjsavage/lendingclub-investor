@@ -1,7 +1,8 @@
 {
   "lendingClub": {
-    "key": "",
-    "investorId": 0
+    "key": "abcdefg",
+    "investorId": 11111,
+    "baseUrl": "localhost:3001"
   },
   "sqlite3": {
     "databasePath": "data/db"
