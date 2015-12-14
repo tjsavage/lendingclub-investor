@@ -6,18 +6,10 @@
 
 <dom-module id="loan-list">
   <template>
-    <style>
-      loan-list-item.iron-selected {
-        background-color: #888;
-      }
-    </style>
-
-    <iron-selector multi selected-class="selected">
-      <template is='dom-repeat' items="[[loans]]">
-        <loan-list-item loan="[[item]]">
-        </loan-list-item>
-      </template>
-    </iron-selector>
+    <template is='dom-repeat' items="[[loans]]">
+      <loan-list-item on-selected-changed="_selectedChanged" loan="[[item]]">
+      </loan-list-item>
+    </template>
   </template>
 </dom-module>
 
@@ -29,7 +21,21 @@
         type: Object
       },
       selectedLoans: {
-
+        type: Object,
+        notify: true
+      }
+    },
+    _selectedChanged: function(e) {
+      if (e.detail.value) {
+        this.push('selectedLoans', e.model.item);
+      } else {
+        this._removeSelectedLoan(e.model.item);
+      }
+    },
+    _removeSelectedLoan: function(loan) {
+      var index = this.selectedLoans.indexOf(loan);
+      if (index != -1) {
+        this.splice('selectedLoans', index, 1);
       }
     }
   });

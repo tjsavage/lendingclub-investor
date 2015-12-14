@@ -1,13 +1,238 @@
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="/bower_components/paper-checkbox/paper-checkbox.html">
+
 <dom-module id="loan-list-item">
   <template>
     <style>
-      :host.selected {
-        color: #f00;
-        background-color: #888;
+      .expanded-section {
+        display: none;
+      }
+
+      .container {
+        padding: 10px;
+        @apply(--layout-vertical);
+      }
+
+      .basic {
+        @apply(--layout-horizontal);
+      }
+
+      .basic > div {
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+
+      .basic .loan-grade {
+        @apply(--layout-vertical);
+        text-align: center;
+      }
+
+      @media (max-width: 600px) {
+        .basic .loan-purpose {
+          display: none;
+        }
+      }
+
+      .expanded .expanded-section {
+        min-height: 100px;
+        display: block;
+        background-color: #eee;
+        margin-top: 10px;
+        padding: 10px;
+      }
+
+      .expanded-heading {
+        text-align: center;
+        font-size: 12px;
+        color: #333;
+      }
+
+      .expanded-subsection {
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
+        @apply(--layout-wrap);
+        margin-bottom: 10px;
+      }
+
+      .fact {
+        @apply(--layout-flex);
+        @apply(--layout-vertical);
+        text-align: center;
+        margin-left: 2px;
+        margin-right: 2px;
+      }
+
+      .fact > label {
+        color: #888;
+        font-size: 9px;
+      }
+
+      @media (max-width: 600px) {
+        .expanded-subsection {
+          display: block!important;
+        }
+        .fact {
+          display: block!important;
+        }
+      }
+
+      .flex {
+        @apply(--layout-flex);
+      }
+
+      .flex-2 {
+        @apply(--layout-flex-2);
+      }
+
+      .flex-3 {
+        @apply(--layout-flex-3);
       }
     </style>
 
-    <p><span>Loan: </span>[[ loan.id ]]</p>
+    <div class$="[[ _expandedClass(expanded) ]] container" on-tap="handleTap">
+      <div class="basic">
+        <div><paper-checkbox checked="{{ selected }}" id="checkbox"></paper-checkbox></div>
+        <div class="loan-grade flex-2">
+          <div>[[ loan.subGrade ]]</div>
+          <div>[[ loan.intRate ]]%</div>
+        </div>
+        <div class="flex-2">[[ loan.term ]]</div>
+        <div class="flex-2 loan-amount">$[[ loan.loanAmount ]]</div>
+        <div class="flex-2 loan-purpose">[[ loan.purpose ]]</div>
+      </div>
+      <div class="expanded-section">
+        <div class="expanded-heading">
+          <div>Basics</div>
+        </div>
+        <div class="expanded-subsection expanded-basics">
+          <div class="fact">
+            <label>Monthly Payment:</label>
+            <div>$[[ loan.installment ]] ([[ loan.term ]])</div>
+          </div>
+          <div class="fact">
+            <label>Expected detault rate:</label>
+            <div>[[ loan.expDefaultRate ]]%</div>
+          </div>
+          <div class="fact">
+            <label>Review status:</label>
+            <div>[[ loan.reviewStatus ]]</div>
+          </div>
+        </div>
+        <div class="expanded-heading">
+          <div>Profile</div>
+        </div>
+        <div class="expanded-subsection expanded-profile">
+          <div class="fact">
+            <label>Home ownership:</label>
+            <div>[[ loan.homeOwnership ]]</div>
+          </div>
+          <div class="fact">
+            <label>Job title</label>
+            <div>[[ loan.empTitle ]]</div>
+          </div>
+          <div class="fact">
+            <label>Length of employment:</label>
+            <div>[[ _monthsToYears(loan.empLength) ]]</div>
+          </div>
+          <div class="fact">
+            <label>Annual income:</label>
+            <div>$[[ loan.annualInc ]]</div>
+          </div>
+          <div class="fact">
+            <label>Income verified:</label>
+            <div>[[ loan.isIncV ]]</div>
+          </div>
+        </div>
+        <div class="expanded-subsection">
+          <div class="fact">
+            <label>DTI</label>
+            <div>[[ loan.dti ]]</div>
+          </div>
+          <div class="fact">
+            <label>Location</label>
+            <div>[[ loan.addrZip]] ([[ loan.addrState ]])</div>
+          </div>
+          <div class="fact">
+            <label>Description</label>
+            <div>[[ loan.desc ]]</div>
+          </div>
+        </div>
+        <div class="expanded-heading">
+          <div>Credit</div>
+        </div>
+        <div class="expanded-credit">
+          <div class="expanded-subsection">
+            <div class="fact">
+              <label>Credit score</label>
+              <div>[[ loan.ficoRangeLow ]]-[[ loan.ficoRangeHigh ]]</div>
+            </div>
+            <div class="fact">
+              <label>Earliest credit:</label>
+              <div>[[ _timestampToDate(loan.earliestCrLine) ]]</div>
+            </div>
+            <div class="fact">
+              <label>Open credit lines:</label>
+              <div>[[ loan.openAcc ]]</div>
+            </div>
+            <div class="fact">
+              <label>Total credit lines:</label>
+              <div>[[ loan.totalAcc ]]</div>
+            </div>
+          </div>
+          <div class="expanded-subsection">
+            <div class="fact">
+              <label>Revolving balance:</label>
+              <div>[[ loan.revolBal ]]</div>
+            </div>
+            <div class="fact">
+              <label>Revolving utilization:</label>
+              <div>[[ loan.revolUtil ]]</div>
+            </div>
+            <div class="fact">
+              <label>Inquiries in last 6 months:</label>
+              <div>[[ loan.inqLast6Mths ]]</div>
+            </div>
+            <div class="fact">
+              <label>Accounts now delinquent:</label>
+              <div>[[ loan.accNowDelinq ]]</div>
+            </div>
+          </div>
+        </div>
+        <div class="expanded-subsection">
+          <div class="fact">
+            <label>Delinquent amount:</label>
+            <div>[[ loan.delinqAmnt ]]</div>
+          </div>
+          <div class="fact">
+            <label>Delinquencies (last 2 yrs):</label>
+            <div>[[ loan.delinq2Yrs ]]</div>
+          </div>
+          <div class="fact">
+            <label>Months since delinquency:</label>
+            <div>[[ loan.mthsSinceLastDelinq ]]</div>
+          </div>
+          <div class="fact">
+            <label>Public records:</label>
+            <div>[[ loan.pubRec ]]</div>
+          </div>
+        </div>
+        <div class="expanded-subsection">
+          <div class="fact">
+            <label>Months since last record:</label>
+            <div>[[ loan.mthsSinceLastRecord ]]</div>
+          </div>
+          <div class="fact">
+            <label>Months since last derogatory:</label>
+            <div>[[ loan.mnthsSinceLastMajorDerog ]]</div>
+          </div>
+          <div class="fact">
+            <label>Collections excluding medical:</label>
+            <div>[[ loan.collections12MthsExMed ]]</div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
   </template>
 </dom-module>
 
@@ -17,7 +242,44 @@ Polymer({
   properties: {
     loan: {
       type: 'Object'
+    },
+    selected: {
+      type: 'boolean',
+      notify: true
+    },
+    expanded: {
+      type: 'boolean',
+      value: false
     }
+  },
+  handleTap: function(e) {
+    if(Polymer.dom(e).localTarget == this.$.checkbox) {
+      e.preventDefault();
+    } else {
+      this.expanded = !this.expanded;
+    }
+  },
+  _expandedClass: function(expanded) {
+    return expanded ? 'expanded' : '';
+  },
+  _timestampToDate: function(timestamp) {
+    return timestamp.replace(/T.*/, "");
+  },
+  _monthsToYears: function(months) {
+    if (typeof months != 'number') {
+      return "";
+    }
+    var years = Math.floor(months / 12);
+    var remainderMonths = months % 12;
+
+    var result = "";
+    if (years > 0) {
+      result += years + " years";
+    }
+    if (remainderMonths > 0) {
+      result += ", " + remainderMonths + " months";
+    }
+    return result;
   }
 });
 </script>

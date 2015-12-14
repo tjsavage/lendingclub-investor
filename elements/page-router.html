@@ -1,0 +1,33 @@
+<link rel="import" href="/bower_components/iron-pages/iron-pages.html">
+
+<dom-module id="page-router">
+  <template>
+    <iron-pages id="ironPages">
+      <content id="content"></content>
+    </iron-pages>
+  </template>
+</dom-module>
+
+<script>
+Polymer({
+  is: 'page-router',
+  properties: {
+    path: {
+      type: "string",
+      observer: "_pathChanged"
+    }
+  },
+  ready: function() {
+    var pages = this.getContentChildren('#content');
+    this.pathIndexMap = {};
+    for(var i = 0; i < pages.length; i++) {
+      this.pathIndexMap[pages[i].getAttribute('path')] = i;
+    }
+  },
+  _pathChanged: function(newVal, oldVal) {
+    if (newVal in this.pathIndexMap) {
+      this.$.ironPages.selected = this.pathIndexMap[newVal];
+    }
+  }
+})
+</script>
