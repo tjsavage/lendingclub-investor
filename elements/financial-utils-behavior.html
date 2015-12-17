@@ -1,0 +1,13 @@
+<script>
+  FinancialUtilsBehavior = {
+    formatDecimalToPercent: function(decimal) {
+      return (decimal * 100) + '%';
+    },
+    formatDollar: function(num) {
+      if (typeof num == 'undefined') {
+        return '';
+      }
+      return '$' + (num.toFixed(2));
+    }
+  }
+</script>

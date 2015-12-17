@@ -16,6 +16,7 @@
   "author": "tjsavage",
   "license": "MIT",
   "dependencies": {
+    "body-parser": "^1.14.2",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
     "config": "^1.17.1",

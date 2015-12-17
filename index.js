@@ -1,6 +1,8 @@
 var express = require('express');
 var config = require('config');
 var fork = require('child_process').fork;
+var bodyParser = require('body-parser');
+
 
 var app = express();
 
@@ -16,12 +18,10 @@ if (process.env.NODE_ENV == 'development') {
    });
 }
 
+app.use(bodyParser.json());
+
 app.use('/bower_components', express.static('bower_components'));
 app.use('/elements', express.static('elements'));
-
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
 
 app.get('/api/loans', function(req, res) {
   manager.listLoans().then(function(loans) {
@@ -34,6 +34,26 @@ app.get('/api/loans', function(req, res) {
   }).then(function(loans) {
     res.json(loans);
   });
+});
+
+app.get('/api/summary', function(req, res) {
+  manager.summary().then(function(summary) {
+    res.json(summary);
+  });
+});
+
+app.post('/api/submitOrder', function(req, res) {
+  manager.createOrders(req.body)
+    .then(function(orders) {
+      return manager.submitOrders(orders)
+    })
+    .then(function(result) {
+      res.json(result);
+    });
+})
+
+app.get('/*', function (req, res) {
+  res.sendFile(__dirname + '/index.html');
 });
 
 var server = app.listen(process.env.PORT || 3000, function () {

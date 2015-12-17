@@ -6,8 +6,8 @@
 
 <dom-module id="loan-list">
   <template>
-    <template is='dom-repeat' items="[[loans]]">
-      <loan-list-item on-selected-changed="_selectedChanged" loan="[[item]]">
+    <template is='dom-repeat' id="loanList" items="[[loans]]">
+      <loan-list-item on-selected-changed="_selectedChanged" selected="[[_isLoanSelected(selectedLoans.*, item)]]" loan="[[item]]">
       </loan-list-item>
     </template>
   </template>
@@ -18,11 +18,13 @@
     is: 'loan-list',
     properties: {
       loans: {
-        type: Object
+        type: Object,
+        value: []
       },
       selectedLoans: {
         type: Object,
-        notify: true
+        notify: true,
+        value: []
       }
     },
     _selectedChanged: function(e) {
@@ -31,6 +33,9 @@
       } else {
         this._removeSelectedLoan(e.model.item);
       }
+    },
+    _isLoanSelected: function(selectedLoans, loan) {
+      return this.selectedLoans.indexOf(loan) != -1;
     },
     _removeSelectedLoan: function(loan) {
       var index = this.selectedLoans.indexOf(loan);
