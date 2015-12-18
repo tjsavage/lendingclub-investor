@@ -26,9 +26,23 @@ app.use('/elements', express.static('elements'));
 app.get('/api/loans', function(req, res) {
   manager.listLoans().then(function(loans) {
     if ('filter' in req.query) {
-      var Filter = require('./src/filters/' + req.query.filter);
-      console.log('filteringAll', Filter.filterAll(loans));
-      return Filter.filterAll(loans, manager);
+      var filterNames = req.query.filter.split(',');
+      var filters = [];
+      var filterPromiseChain = Promise.resolve(loans);
+
+      for (var i = 0; i < filterNames.length; i++) {
+        if (filterNames[i] && filterNames[i] != 'none') {
+          filters.push(require('./src/filters/' + filterNames[i]));
+        }
+      }
+
+      filters.forEach(function(filter) {
+        filterPromiseChain = filterPromiseChain.then(function(filteredLoans) {
+          return filter.filterAll(filteredLoans, manager);
+        });
+      })
+
+      return filterPromiseChain;
     } else {
       return loans;
     }

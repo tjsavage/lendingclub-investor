@@ -3,6 +3,7 @@
 <link rel="import" href="/bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="/bower_components/iron-page-url/iron-page-url.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="/bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="/bower_components/app-layout/app-header-layout/app-header-layout.html">
@@ -16,6 +17,10 @@
 <link rel="import" href="/bower_components/paper-spinner/paper-spinner.html">
 <link rel="import" href="/bower_components/neon-animation/animations/scale-up-animation.html">
 <link rel="import" href="/bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="/bower_components/paper-item/paper-item.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-menu.html">
 
 <link rel="import" href="/elements/loan-list.html">
 <link rel="import" href="/elements/page-router.html">
@@ -87,11 +92,43 @@
         }
       }
 
+      .row {
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
+      }
+
+      .row > div {
+        @apply(--layout-flex);
+      }
+
+      .subheader {
+        top: 0px;
+        width: 100%;
+        background-color: #424242;
+        padding-bottom: 10px;
+        padding-left: 20px;
+        padding-right: 20px;
+        margin-bottom: 5px;
+      }
+
+      #filterMenu {
+        --paper-input-container-color: white;
+        --paper-input-container-input-color: white;
+
+        text-align: left;
+        margin: auto;
+        width: 180px;
+      }
+
+      #filterMenu paper-item {
+        width: 180px;
+      }
+
       #orderDialog {
         text-align: center;
       }
     </style>
-    <iron-ajax auto url="/api/loans/" last-response="{{ loans }}"></iron-ajax>
+    <iron-ajax auto url="[[_constructLoansApiUrl(loanListFilter, settings.onlyShowLoansNotInvestedIn)]]" last-response="{{ loans }}"></iron-ajax>
     <iron-ajax auto url="/api/summary/" last-response="{{ summary }}"></iron-ajax>
     <iron-ajax auto url="/api/loans/?filter=not-previously-invested-in" last-response="{{ loansNotInvestedIn }}"></iron-ajax>
     <iron-ajax id="orderSubmitter"
@@ -140,14 +177,19 @@
                 <div title>Listed Loans</div>
               </app-toolbar>
             </app-header>
-            <template is="dom-if" if="[[settings.onlyShowLoansNotInvestedIn]]">
-              <loan-list id="notInvestedIn" loans="[[ loansNotInvestedIn ]]" selected-loans="{{ selectedLoans }}">
-              </loan-list>
-            </template>
-            <template is="dom-if" if="[[!settings.onlyShowLoansNotInvestedIn]]">
-              <loan-list id="master" loans="[[ loans ]]" selected-loans="{{ selectedLoans }}">
-              </loan-list>
-            </template>
+            <div class="subheader">
+              <div>
+                <paper-dropdown-menu selected-item-label="{{ loanListFilter }}" id="filterMenu" label="Filter">
+                  <paper-listbox class="dropdown-content">
+                    <paper-item selected>none</paper-item>
+                    <paper-item>low-risk-no-bad</paper-item>
+                    <paper-item>is-36-month</paper-item>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+              </div>
+            </div>
+            <loan-list id="master" loans="[[ loans ]]" selected-loans="{{ selectedLoans }}">
+            </loan-list>
           </div>
 
           <div path="/selected-loans">
@@ -181,8 +223,6 @@
                     <paper-spinner active="[[submittingOrder]]"></paper-spinner>
                   </template>
                 </div>
-
-
 
               </paper-dialog>
             </div>
@@ -224,6 +264,10 @@
           return [];
         }
       },
+      loanListFilter: {
+        type: 'string',
+        value: ""
+      },
       settings: {
         type: 'Object',
         value: function() {
@@ -248,6 +292,12 @@
         value: {}
       }
     },
+    observers: [
+      '_loansChanged(loans.*)'
+    ],
+    _loansChanged: function(change) {
+      console.log('_loansChanged', change);
+    },
     submitOrder: function() {
       this.$.orderDialog.open();
     },
@@ -265,6 +315,23 @@
         self.$.orderDialog.close();
         console.log(self.orderResponse);
       })
+    },
+    _constructLoansApiUrl: function(loanListFilter, onlyShowLoansNotInvestedIn) {
+      var url = '/api/loans/';
+      var params = [];
+
+      if ((loanListFilter && loanListFilter != 'none') || onlyShowLoansNotInvestedIn) {
+        url += '?filter=';
+        var filterString = loanListFilter && loanListFilter != 'none' ? loanListFilter : ""
+        if (loanListFilter && loanListFilter != 'none' && onlyShowLoansNotInvestedIn) {
+          filterString += ','
+        }
+        filterString += onlyShowLoansNotInvestedIn ? "not-previously-invested-in" : "";
+        url += filterString;
+      }
+
+      console.log(url);
+      return url;
     },
     _hasItems: function(change) {
       return typeof change.base != 'undefined' && change.base.length > 0;
