@@ -21,11 +21,13 @@ app.get('/accounts/11111/availablecash', function(req, res) {
 });
 
 app.get('/accounts/11111/notes', function(req, res) {
+  console.log('notes');
   res.setHeader('Content-Type', 'application/json');
   res.sendFile(__dirname + '/fixtures/notesowned.json');
 });
 
 app.get('/accounts/11111/detailednotes', function(req, res) {
+  console.log('detailednotes');
   res.setHeader('Content-Type', 'application/json');
   res.sendFile(__dirname + '/fixtures/detailednotes.json');
 });
@@ -36,6 +38,7 @@ app.get('/accounts/11111/portfolios', function(req, res) {
 });
 
 app.get('/loans/listing', function(req, res) {
+  console.log('listing', req.query);
   res.setHeader('Content-Type', 'application/json');
   res.sendFile(__dirname + '/fixtures/loans.json');
 });

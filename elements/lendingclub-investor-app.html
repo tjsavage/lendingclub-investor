@@ -93,6 +93,7 @@
     </style>
     <iron-ajax auto url="/api/loans/" last-response="{{ loans }}"></iron-ajax>
     <iron-ajax auto url="/api/summary/" last-response="{{ summary }}"></iron-ajax>
+    <iron-ajax auto url="/api/loans/?filter=not-previously-invested-in" last-response="{{ loansNotInvestedIn }}"></iron-ajax>
     <iron-ajax id="orderSubmitter"
       url="/api/submitOrder"
       content-type="application/json"
@@ -111,6 +112,7 @@
         <iron-selector class="nav-menu">
           <a name="home" href="/">Home</a>
           <a name="loans" href="/loans">Loans</a>
+          <a name="not-previously-invested-in" href="/loans/filter/not-previously-invested-in">Loans (Not Invested In)</a>
           <a name="selected-loans" href="/selected-loans">Selected Loans</a>
         </iron-selector>
       </div>
@@ -135,10 +137,21 @@
             <app-header condenses waterfall>
               <app-toolbar>
                 <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-                <div title>Lendingclub Investor</div>
+                <div title>Lendingclub Investor - Loans</div>
               </app-toolbar>
             </app-header>
             <loan-list id="master" loans="[[ loans ]]" selected-loans="{{ selectedLoans }}">
+            </loan-list>
+          </div>
+
+          <div path="/loans/filter/not-previously-invested-in">
+            <app-header condenses waterfall>
+              <app-toolbar>
+                <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+                <div title>Loans Not Invested In</div>
+              </app-toolbar>
+            </app-header>
+            <loan-list id="notInvestedIn" loans="[[ loansNotInvestedIn ]]" selected-loans="{{ selectedLoans }}">
             </loan-list>
           </div>
 
@@ -147,7 +160,7 @@
             <app-header condenses waterfall>
               <app-toolbar>
                 <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-                <div title>Lendingclub Investor</div>
+                <div title>Selected Loans</div>
                 <paper-button on-tap="submitOrder" disabled="[[ !_hasItems(selectedLoans.*) ]]" class="invest-button">Invest @ $25/each</paper-button>
               </app-toolbar>
             </app-header>
@@ -192,13 +205,16 @@
     is: 'lendingclub-investor-app',
     properties: {
       loans: {
-        type: 'Object',
-        value: []
+        type: 'Array'
+      },
+      loansNotInvestedIn: {
+        type: 'Array'
       },
       selectedLoans: {
-        type: 'Object',
-        value: [],
-        observer: "_selectedLoansChanged"
+        type: 'Array',
+        value: function() {
+          return [];
+        }
       },
       summary: {
         type: 'Object',
@@ -233,9 +249,6 @@
         self.$.orderDialog.close();
         console.log(self.orderResponse);
       })
-    },
-    _selectedLoansChanged: function(newVal, oldVal) {
-      console.log("called _selectedLoansChanged");
     },
     _hasItems: function(change) {
       return typeof change.base != 'undefined' && change.base.length > 0;

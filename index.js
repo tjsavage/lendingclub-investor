@@ -27,12 +27,16 @@ app.get('/api/loans', function(req, res) {
   manager.listLoans().then(function(loans) {
     if ('filter' in req.query) {
       var Filter = require('./src/filters/' + req.query.filter);
-      return Filter.filterAll(loans);
+      console.log('filteringAll', Filter.filterAll(loans));
+      return Filter.filterAll(loans, manager);
     } else {
       return loans;
     }
   }).then(function(loans) {
     res.json(loans);
+  }).catch(function(err) {
+    console.log(err);
+    res.sendStatus(500);
   });
 });
 
