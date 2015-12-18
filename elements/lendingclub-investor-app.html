@@ -57,7 +57,7 @@
       }
 
       .content {
-        padding: 10px;
+        padding: 20px;
       }
 
       .bottom-bar {
@@ -112,8 +112,8 @@
         <iron-selector class="nav-menu">
           <a name="home" href="/">Home</a>
           <a name="loans" href="/loans">Loans</a>
-          <a name="not-previously-invested-in" href="/loans/filter/not-previously-invested-in">Loans (Not Invested In)</a>
           <a name="selected-loans" href="/selected-loans">Selected Loans</a>
+          <a name="settings" href="/settings"><iron-icon icon="settings"></iron-icon>&nbsp;Settings</a>
         </iron-selector>
       </div>
 
@@ -137,24 +137,18 @@
             <app-header condenses waterfall>
               <app-toolbar>
                 <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-                <div title>Lendingclub Investor - Loans</div>
+                <div title>Listed Loans</div>
               </app-toolbar>
             </app-header>
-            <loan-list id="master" loans="[[ loans ]]" selected-loans="{{ selectedLoans }}">
-            </loan-list>
+            <template is="dom-if" if="[[settings.onlyShowLoansNotInvestedIn]]">
+              <loan-list id="notInvestedIn" loans="[[ loansNotInvestedIn ]]" selected-loans="{{ selectedLoans }}">
+              </loan-list>
+            </template>
+            <template is="dom-if" if="[[!settings.onlyShowLoansNotInvestedIn]]">
+              <loan-list id="master" loans="[[ loans ]]" selected-loans="{{ selectedLoans }}">
+              </loan-list>
+            </template>
           </div>
-
-          <div path="/loans/filter/not-previously-invested-in">
-            <app-header condenses waterfall>
-              <app-toolbar>
-                <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
-                <div title>Loans Not Invested In</div>
-              </app-toolbar>
-            </app-header>
-            <loan-list id="notInvestedIn" loans="[[ loansNotInvestedIn ]]" selected-loans="{{ selectedLoans }}">
-            </loan-list>
-          </div>
-
 
           <div path="/selected-loans">
             <app-header condenses waterfall>
@@ -194,6 +188,20 @@
             </div>
 
           </div>
+          <div path="/settings">
+            <app-header condenses waterfall>
+              <app-toolbar>
+                <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+                <div title>Settings</div>
+                <paper-button on-tap="submitOrder" disabled="[[ !_hasItems(selectedLoans.*) ]]" class="invest-button">Invest @ $25/each</paper-button>
+              </app-toolbar>
+            </app-header>
+
+            <div class="content">
+              <div class="row">
+                <paper-checkbox checked="{{settings.onlyShowLoansNotInvestedIn}}">Only show loans not invested in</paper-checkbox>
+              </div>
+            </div>
         </page-router>
       </app-header-layout>
     </app-drawer-layout>
@@ -214,6 +222,14 @@
         type: 'Array',
         value: function() {
           return [];
+        }
+      },
+      settings: {
+        type: 'Object',
+        value: function() {
+          return {
+            onlyShowLoansNotInvestedIn: true
+          };
         }
       },
       summary: {
