@@ -90,5 +90,20 @@ CREATE TABLE IF NOT EXISTS OrderLoans (
   applicationType TEXT,
   annualIncJoint REAL,
   dtiJoint REAL,
-  isIncVJoint TEXT
+  isIncVJoint TEXT,
+  openAcc6m INTEGER,
+	openIl6m INTEGER,
+	openIl12m INTEGER,
+	openIl24m INTEGER,
+	mthsSinceRcntIl INTEGER,
+	totalBalIl REAL,
+	iLUtil REAL,
+	openRv12m INTEGER,
+	openRv24m INTEGER,
+	maxBalBc REAL,
+	allUtil REAL,
+	totalCreditRv REAL,
+	inqFi INTEGER,
+	totalFiTl INTEGER,
+	inqLast12m
 )

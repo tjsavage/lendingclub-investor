@@ -37,6 +37,16 @@ app.get('/accounts/11111/portfolios', function(req, res) {
   res.sendFile(__dirname + '/fixtures/portfolios.json');
 });
 
+app.post('/accounts/11111/portfolios', function(req, res) {
+  console.log('created portfolio:', req.body);
+
+  res.json({
+    portfolioName: req.body.portfolioName,
+    portfolioDescription: req.body.portfolioDescription,
+    portfolioId: 1
+  });
+})
+
 app.get('/loans/listing', function(req, res) {
   console.log('listing', req.query);
   res.setHeader('Content-Type', 'application/json');

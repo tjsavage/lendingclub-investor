@@ -159,8 +159,12 @@ SQLite3Commands.insertLoansIntoSnapshot = function(db, loans) {
           Object.keys(loan).forEach(function(key) {
             loanObjToInsert['$' + key] = loan[key];
           });
+
           stmt.run(loanObjToInsert, function(err) {
-            if (err) throw new Error(err);
+            if (err) {
+              console.log(err, err.stack);
+              throw new Error(err);
+            }
           });
         }
 

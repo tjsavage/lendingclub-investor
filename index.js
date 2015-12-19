@@ -2,6 +2,7 @@ var express = require('express');
 var config = require('config');
 var fork = require('child_process').fork;
 var bodyParser = require('body-parser');
+var moment = require('moment');
 
 
 var app = express();
@@ -61,13 +62,29 @@ app.get('/api/summary', function(req, res) {
 });
 
 app.post('/api/submitOrder', function(req, res) {
-  manager.createOrders(req.body)
-    .then(function(orders) {
-      return manager.submitOrders(orders)
-    })
-    .then(function(result) {
-      res.json(result);
+  manager.getPortfolios().then(function(portfolioObj) {
+    var portfolios = portfolioObj.myPortfolios;
+
+    var portfolioName = 'App ' + moment().format('YYYY-MM-DD');
+
+    for (var i = 0; i < portfolios.length; i++) {
+      if (portfolios[i].portfolioName == portfolioName) {
+        return portfolios[i].portfolioId
+      }
+    }
+
+    var portfolioPromise = manager.createPortfolio(portfolioName)
+    return portfolioPromise.then(function(portfolioResult) {
+      return portfolioResult.portfolioId;
     });
+  }).then(function(portfolioId){
+    return manager.createOrders(req.body, 25.0, portfolioId);
+  }).then(function(orders) {
+    return manager.submitOrders(orders)
+  })
+  .then(function(result) {
+    res.json(result);
+  });
 })
 
 app.get('/*', function (req, res) {
