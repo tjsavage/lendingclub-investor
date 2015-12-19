@@ -70,7 +70,9 @@ SQLite3Commands.insertOrder = function(db, orderObj) {
 
 SQLite3Commands.selectOrderWithTimestamp = function(db, timestamp) {
   return new Promise(function(resolve, reject) {
-    db.get("SELECT * FROM Orders", function(err, row) {
+    db.get("SELECT * FROM Orders WHERE orderTimestamp = $timestamp", {
+      $timestamp: timestamp
+    }, function(err, row) {
       if (err) throw new Error(err);
       resolve(row);
     });
