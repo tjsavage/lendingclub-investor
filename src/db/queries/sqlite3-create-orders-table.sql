@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS Orders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  orderTimestamp DATETIME,
+  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+  noteCount INTEGER,
+  targetTotal REAL,
+  result TEXT
+);

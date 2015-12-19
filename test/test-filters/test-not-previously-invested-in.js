@@ -36,7 +36,7 @@ describe('not-previously-invested-in', function() {
   it('should correctly filter to loans not invested in', function() {
     var scope = nock(TEST_URL)
         .get('/accounts/11111/notes')
-        .replyWithFile(200, __dirname + '/../fixtures/notes_owned.json');
+        .replyWithFile(200, __dirname + '/../fixtures/notesowned.json');
 
     scope = scope.get("/loans/listing?showAll=true")
       .replyWithFile(200, __dirname + '/../fixtures/loans.json');

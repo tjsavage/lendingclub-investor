@@ -20,10 +20,10 @@ LRNB.filter = function filter(loan) {
     && loan.numTlOpPast12m == 0
     && loan.collections12MthsExMed == 0
     && loan.term == 36
-    && loan.dti < 30
+//    && loan.dti < 30
     && (loan.purpose == 'debt_consolidation' || loan.purpose == 'credit_card')
     && loan.annualInc > 30000
-    && loan.intRate > 12;
+    && loan.intRate > 11.5;
 }
 
 module.exports = LRNB;

@@ -1,19 +1,18 @@
 var TEST_URL = "http://localhost";
 var temp = require('temp').track();
 var path = require('path');
+var config = require('config');
 
 var tempDir = temp.mkdirSync('test');
 
-process.env.NODE_CONFIG = JSON.stringify({
-  lendingClub: {
-    key: "abc",
-    investorId: 11111,
-    baseUrl: TEST_URL
-  },
-  sqlite3: {
-    databasePath: path.join(tempDir, "db")
-  }
-});
+config.lendingClub = {
+  key: "abc",
+  investorId: 11111,
+  baseUrl: TEST_URL
+}
+config.sqlite3 = {
+  databasePath: path.join(tempDir, "db")
+};
 
 var mocha = require('mocha');
 var chai = require('chai');
@@ -38,8 +37,6 @@ describe('take-listed-loan-snapshot', function() {
     var scope = nock(TEST_URL)
       .get("/loans/listing?showAll=true")
       .replyWithFile(200, __dirname + '/../fixtures/loans.json');
-
-
 
     var loadedPromise = takeListedLoanSnapshot();
 

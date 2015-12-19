@@ -13,4 +13,6 @@ describe("top", function () {
   importTest("test-etl-load-all-listed-loans", './test-etl/test-load-all-listed-loans');
 
   importTest("test-take-listed-loan-snapshot", './test-routines/test-take-listed-loan-snapshot');
+
+  importTest("test-autoinvest", './test-autoinvestor/test-autoinvest');
 });

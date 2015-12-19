@@ -27,6 +27,103 @@ SQLite3Commands.createListedLoansSnapshotsTable = function(db) {
   })
 }
 
+SQLite3Commands.createOrdersTable = function(db) {
+  return new Promise(function(resolve, reject) {
+    fs.readFile(__dirname + '/queries/sqlite3-create-orders-table.sql',
+      'utf-8',
+    function(err, data) {
+      if (err){
+        throw new Error(err);
+      }
+
+      db.run(data, function(err) {
+        if (err) {
+          reject(err);
+        }
+        resolve();
+      })
+    })
+  })
+}
+
+SQLite3Commands.insertOrder = function(db, orderObj) {
+  return new Promise(function(resolve, reject) {
+    fs.readFile(__dirname + '/queries/sqlite3-insert-order.sql', 'utf-8', function(err, data) {
+      if (err) throw new Error(err);
+
+      var stmt = db.prepare(data);
+      var orderObjToInsert = {
+        $orderTimestamp: orderObj.orderTimestamp,
+        $noteCount: orderObj.noteCount,
+        $targetTotal: orderObj.targetTotal,
+        $result: JSON.stringify(orderObj.result)
+      }
+
+      stmt.run(orderObjToInsert, function(err) {
+        if (err) throw new Error(err);
+      });
+
+      stmt.finalize(resolve);
+    });
+  });
+}
+
+SQLite3Commands.selectOrderWithTimestamp = function(db, timestamp) {
+  return new Promise(function(resolve, reject) {
+    db.get("SELECT * FROM Orders", function(err, row) {
+      if (err) throw new Error(err);
+      resolve(row);
+    });
+  })
+}
+
+SQLite3Commands.createOrderNotesTable = function(db) {
+  return new Promise(function(resolve, reject) {
+    fs.readFile(__dirname + '/queries/sqlite3-create-order-notes-table.sql',
+      'utf-8',
+    function(err, data) {
+      if (err){
+        throw new Error(err);
+      }
+
+      db.run(data, function(err) {
+        if (err) {
+          reject(err);
+        }
+        resolve();
+      })
+    })
+  })
+}
+
+SQLite3Commands.insertOrderNotes = function(db, orders, orderId) {
+  return new Promise(function(resolve, reject) {
+    fs.readFile(__dirname + '/queries/sqlite3-insert-order-note.sql', 'utf-8', function(err, data) {
+      if (err) throw new Error(err);
+
+      db.serialize(function() {
+        var stmt = db.prepare(data);
+
+        for(var i = 0; i < orders.length; i++) {
+          var order = orders[i];
+
+          var orderObjToInsert = {
+            $orderId: orderId
+          };
+          Object.keys(order).forEach(function(key) {
+            orderObjToInsert['$' + key] = order[key];
+          });
+          stmt.run(orderObjToInsert, function(err) {
+            if (err) throw new Error(err);
+          });
+        }
+
+        stmt.finalize(resolve);
+      })
+    })
+  })
+}
+
 SQLite3Commands.checkIfListedLoansSnapshotsTableExists = function(db) {
   return new Promise(function(resolve, reject) {
     db.get("SELECT name FROM sqlite_master WHERE type='table' AND name='ListedLoansSnapshots'", function(err, row) {
