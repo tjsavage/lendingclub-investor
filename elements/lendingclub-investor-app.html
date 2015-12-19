@@ -63,6 +63,7 @@
 
       .content {
         padding: 20px;
+        @apply(--layout-horizontal);
       }
 
       .bottom-bar {
@@ -127,8 +128,13 @@
       #orderDialog {
         text-align: center;
       }
+
+      .loading-spinner {
+        margin-left: auto;
+        margin-right: auto;
+      }
     </style>
-    <iron-ajax auto url="[[_constructLoansApiUrl(loanListFilter, settings.onlyShowLoansNotInvestedIn)]]" last-response="{{ loans }}"></iron-ajax>
+    <iron-ajax auto url="[[_constructLoansApiUrl(loanListFilter, settings.onlyShowLoansNotInvestedIn)]]" loading="{{ loadingLoans }}" last-response="{{ loans }}"></iron-ajax>
     <iron-ajax auto url="/api/summary/" last-response="{{ summary }}"></iron-ajax>
     <iron-ajax auto url="/api/loans/?filter=not-previously-invested-in" last-response="{{ loansNotInvestedIn }}"></iron-ajax>
     <iron-ajax id="orderSubmitter"
@@ -189,8 +195,17 @@
                 </paper-dropdown-menu>
               </div>
             </div>
-            <loan-list id="master" loans="[[ loans ]]" selected-loans="{{ selectedLoans }}">
-            </loan-list>
+            <template is="dom-if" if="{{ loadingLoans }}">
+              <div class="content">
+                <div class="flex"></div>
+                <paper-spinner class="loading-spinner flex" active="{{ loadingLoans }}"></paper-spinner>
+                <div class="flex"></div>
+              </div>
+            </template>
+            <template is="dom-if" if="{{ !loadingLoans }}">
+              <loan-list id="master" loans="[[ loans ]]" selected-loans="{{ selectedLoans }}">
+              </loan-list>
+            </template>
           </div>
 
           <div path="/selected-loans">
@@ -268,6 +283,10 @@
       loanListFilter: {
         type: 'string',
         value: ""
+      },
+      loadingLoans: {
+        type: 'boolean',
+        value: false
       },
       settings: {
         type: 'Object',
