@@ -1,11 +1,11 @@
 var SanityChecks = {};
 
-SanityChecks.checkOrders = function(orders) {
+SanityChecks.checkOrders = function(orders, loans) {
   return new Promise(function(resolve, reject) {
     if (orders.length > 20) {
       throw new Error("Failed sanity check: over 20 orders");
     }
-    resolve(orders);
+    resolve([orders, loans]);
   })
 }
 

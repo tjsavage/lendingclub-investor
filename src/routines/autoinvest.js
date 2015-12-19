@@ -16,4 +16,5 @@ var autoinvest = function autoinvest() {
   });
 }
 
-module.exports = takeListedLoanSnapshot;
+autoinvest();
+module.exports = autoinvest;

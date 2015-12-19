@@ -137,7 +137,7 @@ describe('autoinvest', function() {
     var orderNotesPromise = completionPromise.then(function() {
       return new Promise(function(resolve, reject) {
         var db = new sqlite3.Database(config.databasePath);
-        db.all("SELECT * FROM OrderNotes", function(err, rows) {
+        db.all("SELECT * FROM OrderLoans", function(err, rows) {
           resolve(rows);
         });
       })
@@ -184,9 +184,19 @@ describe('autoinvest', function() {
       });
     })
 
+    var resultPromise = completionPromise.then(function() {
+      return new Promise(function(resolve, reject) {
+        var db = new sqlite3.Database(config.databasePath);
+        db.get("SELECT result FROM Orders", function(err, row) {
+          resolve(row.result)
+        })
+      })
+    })
+
     return Promise.all([
       expect(completionPromise).to.eventually.be.fulfilled,
-      expect(selectPromise).to.eventually.have.length(1)
+      expect(selectPromise).to.eventually.have.length(1),
+      expect(resultPromise).to.eventually.contain('dryRun')
     ]);
   });
 
@@ -211,6 +221,25 @@ describe('autoinvest', function() {
 
     return Promise.all([
       expect(completionPromise).to.eventually.be.rejected,
+    ]);
+  });
+
+  it('should fail if it cannot get a loan list', function() {
+    var scope = nock(TEST_URL)
+        .get("/loans/listing?showAll=true")
+        .reply(404);
+        //.replyWithFile(200, __dirname + '/../fixtures/notesowned.json');
+
+    var completionPromise = Promise.resolve().then(function() {
+      return Autoinvest.invest(manager, ['not-previously-invested-in'], config)
+        .catch(function(err) {
+          console.log(err.stack);
+          throw new Error(err);
+        })
+    });
+
+    return Promise.all([
+      expect(completionPromise).to.eventually.be.rejectedWith(/Undefined response/),
     ]);
   });
 });

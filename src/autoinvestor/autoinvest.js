@@ -32,6 +32,7 @@ AutoInvest.invest = function(manager, filterNames, options) {
       throw new Error("Must have a valid file to log auto-investing output to")
     }
 
+    console.log(options.databasePath);
     var db = new sqlite3.Database(options.databasePath);
 
     var filters = [];
@@ -48,12 +49,12 @@ AutoInvest.invest = function(manager, filterNames, options) {
       orderTimestamp: timestamp
     }
 
-    manager.listLoans()
-      .then(null, function(err) {
-        logger.log("Error at listing loans", err);
-        reject(err);
-      })
-      .then(function(loans) {
+    return Promise.resolve().then(function(){
+      return manager.listLoans().then(null, function(err) {
+        console.log("Error listing loans: ", err);
+        throw new Error(err);
+      });
+    }).then(function(loans) {
         logger.log('Creating loan snapshot');
         return Promise.all([AutoInvest.loadLoansSnapshotToDatabase(loans, db), loans])
           .then(null, function(err) {
@@ -95,18 +96,26 @@ AutoInvest.invest = function(manager, filterNames, options) {
         var filteredLoans = results[1];
 
         logger.log("Created portfolio", JSON.stringify(portfolioResult));
-        return manager.createOrders(filteredLoans, 25.0, portfolioResult.portfolioId).then(null, function(err) {
+        var ordersPromise = manager.createOrders(filteredLoans, 25.0, portfolioResult.portfolioId).then(null, function(err) {
           logger.log("Failed in creating an order");
           throw new Error(err);
         });
+
+        return Promise.all([ordersPromise, filteredLoans]);
       })
-      .then(function(orders) {
-        return sanityChecks.checkOrders(orders).then(null, function(err) {
+      .then(function(results) {
+        var orders = results[0];
+        var filteredLoans = results[1];
+
+        return sanityChecks.checkOrders(orders, filteredLoans).then(null, function(err) {
           logger.log("Failed sanity check:", err);
           reject(err);
         });
       })
-      .then(function(orders) {
+      .then(function(results) {
+        var orders = results[0];
+        var filteredLoans = results[1];
+
         var targetTotal = 0;
         orders.forEach(function(order) {
           targetTotal += order.requestedAmount;
@@ -116,10 +125,13 @@ AutoInvest.invest = function(manager, filterNames, options) {
           orderObj.noteCount = orders.length;
           orderObj.targetTotal = targetTotal;
         }).then(function() {
-          return orders;
+          return [orders, filteredLoans];
         });
       })
-      .then(function(orders) {
+      .then(function(results) {
+        var orders = results[0];
+        var filteredLoans = results[1];
+
         var orderResultPromise;
         if (options.dryRun) {
           logger.log("Doing a dry run, not submitting orders:", JSON.stringify(orders));
@@ -129,25 +141,26 @@ AutoInvest.invest = function(manager, filterNames, options) {
           orderResultPromise = manager.submitOrders(orders)
         }
 
-        return Promise.all([orderResultPromise, orders]);
+        return Promise.all([orderResultPromise, orders, filteredLoans]);
       })
       .then(function(results) {
         var orderResult = results[0];
         var orderNotes = results[1];
+        var filteredLoans = results[2];
 
         logger.log("Order result:", JSON.stringify(orderResult));
-        orderObj.results = orderResult;
+        orderObj.result = orderResult;
         orderObj.orderTimestamp = timestamp;
         return sqlite3commands.insertOrder(db, orderObj).then(function() {
           logger.log("Inserted order to database");
         })
         .then(function() {
-          return sqlite3commands.createOrderNotesTable(db);
+          return sqlite3commands.createOrderLoansTable(db);
         }).then(function() {
           return sqlite3commands.selectOrderWithTimestamp(db, timestamp);
         }).then(function(orderRow) {
           logger.log("orderId:", orderRow.id);
-          return sqlite3commands.insertOrderNotes(db, orderNotes, orderRow.id);
+          return sqlite3commands.insertOrderLoans(db, filteredLoans, orderRow.id);
         }).then(function() {
           return orderResult;
         });

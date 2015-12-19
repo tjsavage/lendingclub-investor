@@ -77,9 +77,9 @@ SQLite3Commands.selectOrderWithTimestamp = function(db, timestamp) {
   })
 }
 
-SQLite3Commands.createOrderNotesTable = function(db) {
+SQLite3Commands.createOrderLoansTable = function(db) {
   return new Promise(function(resolve, reject) {
-    fs.readFile(__dirname + '/queries/sqlite3-create-order-notes-table.sql',
+    fs.readFile(__dirname + '/queries/sqlite3-create-order-loans-table.sql',
       'utf-8',
     function(err, data) {
       if (err){
@@ -96,24 +96,24 @@ SQLite3Commands.createOrderNotesTable = function(db) {
   })
 }
 
-SQLite3Commands.insertOrderNotes = function(db, orders, orderId) {
+SQLite3Commands.insertOrderLoans = function(db, loans, orderId) {
   return new Promise(function(resolve, reject) {
-    fs.readFile(__dirname + '/queries/sqlite3-insert-order-note.sql', 'utf-8', function(err, data) {
+    fs.readFile(__dirname + '/queries/sqlite3-insert-order-loan.sql', 'utf-8', function(err, data) {
       if (err) throw new Error(err);
 
       db.serialize(function() {
         var stmt = db.prepare(data);
 
-        for(var i = 0; i < orders.length; i++) {
-          var order = orders[i];
+        for(var i = 0; i < loans.length; i++) {
+          var loan = loans[i];
 
-          var orderObjToInsert = {
+          var loanObjToInsert = {
             $orderId: orderId
           };
-          Object.keys(order).forEach(function(key) {
-            orderObjToInsert['$' + key] = order[key];
+          Object.keys(loan).forEach(function(key) {
+            loanObjToInsert['$' + key] = loan[key];
           });
-          stmt.run(orderObjToInsert, function(err) {
+          stmt.run(loanObjToInsert, function(err) {
             if (err) throw new Error(err);
           });
         }
