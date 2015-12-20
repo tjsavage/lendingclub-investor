@@ -1,6 +1,7 @@
 var sqlite3 = require('sqlite3');
 var fs = require('fs');
 var time = require('time');
+var moment = require('moment');
 
 var sqlite3commands = require('../db/sqlite3-commands');
 
@@ -40,7 +41,7 @@ AutoInvest.invest = function(manager, filterNames, options) {
       filters.push(require('../filters/' + filterName));
     });
 
-    var timestamp = (new time.Date()).toString()
+    var timestamp = moment().format('YYYY-MM-DD HH.mm.ss');
     var logger = new Logger(options.logPath);
 
     logger.log("Starting new autoinvest routine");
@@ -59,7 +60,7 @@ AutoInvest.invest = function(manager, filterNames, options) {
         return Promise.all([AutoInvest.loadLoansSnapshotToDatabase(loans, db), loans])
           .then(null, function(err) {
             logger.log("Error taking loan snapshot");
-            reject(err);
+            return Promise.reject(err);
           })
       })
       .then(function(results) {
@@ -68,25 +69,35 @@ AutoInvest.invest = function(manager, filterNames, options) {
         var filtersPromise = Promise.resolve(loans);
 
         filters.forEach(function(filter) {
+          logger.log("Adding filter:", filter);
           filtersPromise = filtersPromise.then(function(filteredLoans) {
-            return filter.filterAll(filteredLoans, manager);
+            return filter.filterAll(filteredLoans, manager).then(null, function(err) {
+              logger.log("Failed filter:", err);
+              return Promise.reject(err);
+            });
           });
         });
 
-        return filtersPromise;
-      })
-      .then(function(filteredLoans) {
-        return sanityChecks.checkFilteredLoans(filteredLoans).then(null, function(err) {
-          logger.log("Failed sanity check:", err);
-          reject(err);
+        return filtersPromise.then(null, function(err) {
+          logger.log("Error running filters", err);
+          return Promise.reject(err);
         });
       })
       .then(function(filteredLoans) {
-        var portfolioName = timestamp.replace(/:/g, '.').replace(/[()]/g, '');
+        logger.log("Successfully filtered loans down to:", filteredLoans.length);
+        return sanityChecks.checkFilteredLoans(filteredLoans).then(null, function(err) {
+          logger.log("Failed sanity check:", err);
+          return Promise.reject(err);
+        });
+      })
+      .then(function(filteredLoans) {
+        var portfolioName = "Auto " + timestamp;
         if (options.dryRun) {
+          logger.log("Dry run, not actually creating a portfolio");
           var portfolioPromise = {portfolioId: 1};
         } else {
-          var portfolioPromise = manager.createPortfolio("Autoinvest " + portfolioName);
+          logger.log("Not a dry run, creating portfolio named:", portfolioName);
+          var portfolioPromise = manager.createPortfolio(portfolioName);
         }
 
         return Promise.all([portfolioPromise, Promise.resolve(filteredLoans)]);
@@ -98,7 +109,7 @@ AutoInvest.invest = function(manager, filterNames, options) {
         logger.log("Created portfolio", JSON.stringify(portfolioResult));
         var ordersPromise = manager.createOrders(filteredLoans, 25.0, portfolioResult.portfolioId).then(null, function(err) {
           logger.log("Failed in creating an order");
-          throw new Error(err);
+          return Promise.reject(err);
         });
 
         return Promise.all([ordersPromise, filteredLoans]);
