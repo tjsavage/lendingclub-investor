@@ -2,6 +2,7 @@ var sqlite3 = require('sqlite3');
 var fs = require('fs');
 var time = require('time');
 var moment = require('moment');
+var prompt = require('prompt');
 
 var sqlite3commands = require('../db/sqlite3-commands');
 
@@ -32,6 +33,7 @@ var AutoInvestor = function AutoInvestor(manager, filterNames, options) {
 
   this.manager = manager;
   this.filterNames = filterNames;
+
   this.options = options;
 
   this.filters = [];
@@ -47,12 +49,14 @@ var AutoInvestor = function AutoInvestor(manager, filterNames, options) {
 }
 
 AutoInvestor.prototype.listLoans = function() {
+  var logger = this.logger;
+
   return this.manager.listLoans().then(function(loans) {
     this.loans = loans;
     return this.loans;
   }.bind(this))
   .catch(function(err) {
-    console.log("Error listing loans: ", err);
+    logger.log("Error listing loans: ", err);
     throw new Error(err);
   });
 }
@@ -224,6 +228,55 @@ AutoInvestor.prototype.saveOrderToDatabase = function() {
     });
 }
 
+AutoInvestor.prototype.confirmLoans = function() {
+  var options = this.options;
+  var logger = this.logger;
+  var filteredLoans = this.filteredLoans;
+
+  return new Promise(function(resolve, reject) {
+    if (options.force == 'undefined' || !options.force) {
+      prompt.start();
+      prompt.message = '';
+      prompt.delimiter = '';
+      prompt.colors = false;
+
+      logger.log("Loans:", JSON.stringify(filteredLoans.map(function(loan) {
+        return {
+          id: loan.id,
+          term: loan.term,
+          intRate: loan.intRate,
+          loanAmount: loan.loanAmount
+        }
+      })));
+
+      prompt.get({
+        properties: {
+          confirm: {
+            pattern: /^(yes|no|y|n)$/gi,
+            description: "Submit order?",
+            message: "Type yes/no",
+            required: true,
+            default: 'no'
+          }
+        }
+      }, function(err, result) {
+        if (err) reject(err);
+
+        var confirmation = result.confirm.toLowerCase();
+
+        if (confirmation == 'y' || confirmation == 'yes') {
+          resolve();
+        } else {
+          logger.log("Denied order confirmation, bailing out.")
+          reject();
+        }
+      });
+    } else {
+      resolve();
+    }
+  });
+}
+
 AutoInvestor.prototype.invest = function(manager, filterNames, options) {
   var logger = this.logger;
 
@@ -234,6 +287,7 @@ AutoInvestor.prototype.invest = function(manager, filterNames, options) {
     .then(this.takeSnapshot.bind(this))
     .then(this.filterLoans.bind(this))
     .then(this.runLoansSanityCheck.bind(this))
+    .then(this.confirmLoans.bind(this))
     .then(this.createPortfolio.bind(this))
     .then(this.createOrders.bind(this))
     .then(this.runOrdersSanityCheck.bind(this))

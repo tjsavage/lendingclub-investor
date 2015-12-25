@@ -2,9 +2,6 @@ var TEST_URL = "http://localhost";
 var temp = require('temp').track();
 var path = require('path');
 
-if (global.v8debug)
-   global.v8debug.Debug.setBreakOnException()
-
 var mocha = require('mocha');
 var chai = require('chai');
 var nock = require('nock');
@@ -30,7 +27,8 @@ describe('autoinvest', function() {
 
     config = {
       databasePath: path.join(tempDir, "autoinvest_db"),
-      logPath: path.join(tempDir, "autoinvest_log")
+      logPath: path.join(tempDir, "autoinvest_log"),
+      force: true
     }
 
     manager = new LendingclubManager({
@@ -173,7 +171,8 @@ describe('autoinvest', function() {
     var dryRunConfig = {
       databasePath: config.databasePath,
       logPath: config.logPath,
-      dryRun: true
+      dryRun: true,
+      force: config.force
     }
 
     var completionPromise = Promise.resolve().then(function() {
