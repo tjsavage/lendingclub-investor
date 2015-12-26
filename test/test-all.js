@@ -7,6 +7,7 @@ function importTest(name, path) {
 describe("top", function () {
   importTest("test-filters-not-previously-invested-in", './test-filters/test-not-previously-invested-in');
   importTest("test-filters-is-36-month", './test-filters/test-is-36-month');
+  importTest("test-only-available-cash", './test-filters/test-only-available-cash');
 
   importTest("test-db-sqlite3-commands", './test-db/test-sqlite3-commands');
 

@@ -151,9 +151,9 @@ describe('autoinvest', function() {
     })
 
     return Promise.all([
-      expect(completionPromise).to.eventually.be.fulfilled
-      //expect(selectPromise).to.eventually.have.length(1),
-      //expect(orderNotesPromise).to.eventually.have.length(3)
+      expect(completionPromise).to.eventually.be.fulfilled,
+      expect(selectPromise).to.eventually.have.length(1),
+      expect(orderNotesPromise).to.eventually.have.length(3)
     ]);
   });
 
@@ -206,6 +206,101 @@ describe('autoinvest', function() {
       expect(completionPromise).to.eventually.be.fulfilled,
       expect(selectPromise).to.eventually.have.length(1),
       expect(resultPromise).to.eventually.contain('dryRun')
+    ]);
+  });
+
+  it('should correctly automatically invest up to only available cash', function() {
+    var scope = nock(TEST_URL)
+        .get('/accounts/11111/notes')
+        .replyWithFile(200, __dirname + '/../fixtures/notesowned.json');
+
+    scope = scope.get("/loans/listing?showAll=true")
+      .replyWithFile(200, __dirname + '/../fixtures/loans.json');
+
+    scope = scope.get('/accounts/11111/notes')
+      .replyWithFile(200, __dirname + '/../fixtures/notesowned.json');
+
+    scope = scope.get('/accounts/11111/summary')
+      .replyWithFile(200, __dirname + '/../fixtures/summary.json');
+
+    var portfolioName;
+
+    scope = scope.post('/accounts/11111/portfolios', function(body) {
+      portfolioName = body.portfolioName;
+      return body.aid == 11111 && body.portfolioName.indexOf("Auto") > -1
+    }).reply(200, {
+      portfolioId: 22222,
+      portfolioName: portfolioName
+    });
+
+    scope = scope.post('/accounts/11111/orders', {
+      "aid":11111,
+      "orders": [
+        {
+          "loanId":44444,
+          "requestedAmount":25,
+          "portfolioId": 22222
+        },
+        {
+          "loanId":55555,
+          "requestedAmount":25,
+          "portfolioId": 22222
+        }
+      ]}).reply(200, {
+      	"orderInstructId":55555,
+      	"orderConfirmations": [
+      	{
+      		"loanId":44444,
+      		"requestedAmount":25.0,
+      		"investedAmount":25.0,
+      		"executionStatus":
+      			[
+      			"ORDER_FULFILLED"
+      			]
+      	},
+      	{
+      		"loanId":55555,
+      		"requestedAmount":25.0,
+      		"investedAmount":0,
+      		"executionStatus":
+      			[
+      			"NOT_AN_INFUNDING_LOAN"
+      			]
+      	}]
+      });
+
+    var completionPromise = Promise.resolve().then(function() {
+      var autoinvestor = new AutoInvestor(manager, ['not-previously-invested-in', 'only-available-cash'], config);
+
+      return autoinvestor.invest()
+        .catch(function(err) {
+          console.log(err.stack);
+          throw new Error(err);
+        })
+    });
+
+    var selectPromise = completionPromise.then(function() {
+      return new Promise(function(resolve, reject) {
+        var db = new sqlite3.Database(config.databasePath);
+        db.all("SELECT * FROM Orders", function(err, rows) {
+          resolve(rows)
+        });
+      });
+    })
+
+    var orderNotesPromise = completionPromise.then(function() {
+      return new Promise(function(resolve, reject) {
+        var db = new sqlite3.Database(config.databasePath);
+        db.all("SELECT * FROM OrderLoans", function(err, rows) {
+          resolve(rows);
+        });
+      })
+    })
+
+    return Promise.all([
+      expect(completionPromise).to.eventually.be.fulfilled,
+      expect(selectPromise).to.eventually.have.length(1),
+      expect(orderNotesPromise).to.eventually.have.length(2)
     ]);
   });
 

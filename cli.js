@@ -30,7 +30,7 @@ program
       }
     }
 
-    var autoinvestor = new AutoInvestor(manager, ['ok-to-autoinvest', 'not-previously-invested-in'], autoinvestConfig);
+    var autoinvestor = new AutoInvestor(manager, ['ok-to-autoinvest', 'not-previously-invested-in', 'only-available-cash'], autoinvestConfig);
 
     return autoinvestor.invest();
   });

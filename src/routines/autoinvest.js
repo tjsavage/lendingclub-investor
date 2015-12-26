@@ -11,7 +11,7 @@ var autoinvest = function autoinvest() {
 
   var manager = new LendingclubManager(lendingclubConfig);
 
-  return AutoInvest.invest(manager, ['ok-to-autoinvest', 'not-previously-invested-in'], autoinvestConfig).then(function() {
+  return AutoInvest.invest(manager, ['ok-to-autoinvest', 'not-previously-invested-in', 'only-available-cash'], autoinvestConfig).then(function() {
     console.log("Completed autoinvest of listed loans at ", (new time.Date()).toString());
   });
 }

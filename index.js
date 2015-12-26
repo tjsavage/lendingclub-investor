@@ -7,8 +7,6 @@ var moment = require('moment');
 
 var app = express();
 
-var cron = require('./cron');
-
 var LendingclubManager = require('node-lendingclub-manager')
 var manager = new LendingclubManager(config.get('lendingClub'));
 
