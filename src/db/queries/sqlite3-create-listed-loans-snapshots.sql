@@ -101,8 +101,7 @@ CREATE TABLE IF NOT EXISTS ListedLoansSnapshots (
   openRv24m INTEGER,
   maxBalBc REAL,
   allUtil REAL,
-  totalCreditRv REAL,
   inqFi INTEGER,
-  totalFiTl INTEGER,
-  inqLast12m
+  totalCuTl INTEGER,
+  inqLast12m INTEGER
 )

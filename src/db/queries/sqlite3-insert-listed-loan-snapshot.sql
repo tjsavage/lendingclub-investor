@@ -100,9 +100,8 @@ INSERT INTO ListedLoansSnapshots (
 	openRv24m,
 	maxBalBc,
 	allUtil,
-	totalCreditRv,
 	inqFi,
-	totalFiTl,
+	totalCuTl,
 	inqLast12m
 ) VALUES (
   $snapshotTimestamp,
@@ -206,8 +205,7 @@ INSERT INTO ListedLoansSnapshots (
 	$openRv24m,
 	$maxBalBc,
 	$allUtil,
-	$totalCreditRv,
 	$inqFi,
-	$totalFiTl,
+	$totalCuTl,
 	$inqLast12m
 );

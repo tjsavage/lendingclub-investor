@@ -102,9 +102,8 @@ INSERT INTO OrderLoans (
 	openRv24m,
 	maxBalBc,
 	allUtil,
-	totalCreditRv,
 	inqFi,
-	totalFiTl,
+	totalCuTl,
 	inqLast12m
 ) VALUES (
   $orderId,
@@ -210,8 +209,7 @@ INSERT INTO OrderLoans (
 	$openRv24m,
 	$maxBalBc,
 	$allUtil,
-	$totalCreditRv,
 	$inqFi,
-	$totalFiTl,
+	$totalCuTl,
 	$inqLast12m
 )
