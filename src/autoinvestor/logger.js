@@ -12,6 +12,7 @@ Logger.prototype.log = function() {
   }
   var logString = (new time.Date()).toString() + ": " + argsString;
   console.log(logString);
+  logString += "\n";
   fs.appendFileSync(this.logfile, logString, 'utf8', function(err) {
     throw new Error(err);
   });
