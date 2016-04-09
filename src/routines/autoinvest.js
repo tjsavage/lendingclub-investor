@@ -1,9 +1,13 @@
 var sqlite3 = require('sqlite3');
 var LendingclubManager = require('node-lendingclub-manager');
+console.log(process.cwd());
 var config = require('config');
+console.log('NODE_CONFIG_DIR: ' + config.util.getEnv('NODE_CONFIG_DIR'));
+
 var time = require('time');
 
-var AutoInvest = require('../autoinvestor/autoinvest');
+
+var AutoInvest = require('../autoinvestor/autoinvestor');
 
 var autoinvest = function autoinvest() {
   var lendingclubConfig = config.get('lendingClub');
@@ -11,7 +15,11 @@ var autoinvest = function autoinvest() {
 
   var manager = new LendingclubManager(lendingclubConfig);
 
-  return AutoInvest.invest(manager, ['ok-to-autoinvest', 'not-previously-invested-in', 'only-available-cash'], autoinvestConfig).then(function() {
+  var autoinvestor = new AutoInvest(manager,
+    ['ok-to-autoinvest', 'not-previously-invested-in', 'only-available-cash'],
+    autoinvestConfig);
+
+  return autoinvestor.invest().then(function() {
     console.log("Completed autoinvest of listed loans at ", (new time.Date()).toString());
   });
 }

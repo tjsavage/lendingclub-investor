@@ -1,1 +1,1 @@
-NODE_ENV=production NODE_CONFIG_DIR=./private-config/ node autoinvest.js
+NODE_ENV=production NODE_CONFIG_DIR=./config/ node autoinvest.js

@@ -44,7 +44,7 @@ var AutoInvestor = function AutoInvestor(manager, filterNames, options) {
 
   this.db = new sqlite3.Database(options.databasePath);
   this.timestamp = moment().format('YYYY-MM-DD HH.mm.ss');
-  this.logger = new Logger(options.logPath);
+  this.logger = new Logger(options.logPath, options.logglyConfig);
 
 }
 
@@ -277,7 +277,7 @@ AutoInvestor.prototype.confirmLoans = function() {
   });
 }
 
-AutoInvestor.prototype.invest = function(manager, filterNames, options) {
+AutoInvestor.prototype.invest = function() {
   var logger = this.logger;
 
   this.logger.log("Starting new autoinvest routine");
