@@ -1,8 +1,6 @@
 var sqlite3 = require('sqlite3');
 var LendingclubManager = require('node-lendingclub-manager');
-console.log(process.cwd());
 var config = require('config');
-console.log('NODE_CONFIG_DIR: ' + config.util.getEnv('NODE_CONFIG_DIR'));
 
 var time = require('time');
 

@@ -26,11 +26,10 @@ Logger.prototype.log = function() {
 Logger.prototype.error = function() {
   var logString = this._logStringFromArgs(arguments);
 
-  //console.error(logString);
   if (this.winston) {
     this.winston.log('error', logString);
   } else {
-    console.log(logString);
+    console.error(logString);
   }
   this._logToFile(logString);
 }
